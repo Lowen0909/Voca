@@ -52,13 +52,25 @@ class VocDB {
   }
   // CRUD
   // create
-  static Future<void> addVoc(Voc voc) async {
+  // static Future<void> addVoc(Voc voc) async {
+  //   final Database db = await getDBConnect();
+  //   await db.insert(
+  //     'vocDict',
+  //     voc.toMap(),
+  //     conflictAlgorithm: ConflictAlgorithm.ignore,
+  //   );
+  // }
+  static Future<void> addVoc(List<Map<String,dynamic>>jsonfile) async {
     final Database db = await getDBConnect();
-    await db.insert(
-      'vocDict',
-      voc.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
+    final Batch batch = db.batch();
+
+    for (Map<String,dynamic> voc in jsonfile) {
+      batch.insert('vocDict', voc);
+    }
+
+    final List<dynamic> result = await batch.commit();
+    final int affectedRows = result.reduce((sum, element) => sum + element);
+    print(affectedRows);
   }
   // get 1
   static Future<List<Voc>> getVoc() async {
